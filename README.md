@@ -8,11 +8,11 @@
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF.svg?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing--principles-of-participation)
 
-> Semantic Prism is a personal research and prototype project for AI-assisted semantic engineering: a visual workbench that turns complex software systems into traceable text, canvas and control surfaces.
+> Semantic Prism is a personal research and prototype project for AI-native semantic engineering: an AI-native visual workbench that turns complex software systems into traceable text, canvas and control surfaces.
 
 Semantic Prism is not a code editor, not a low-code tool, and not an IDE clone. It explores a semantic-workbench approach to complex implementation substrates — legacy systems, generated code, 4GL platforms, agentic runtimes, configuration-heavy systems, greenfield application models — through user-appropriate views: business-readable descriptions, visual dependency maps, process and data diagrams, source-code and pseudo-code views, generated DSL representations, forms, dashboards, review panels and more.
 
-The core thesis: users should not have to work directly against raw implementation artefacts by default. They should work against semantic surfaces that remain traceable to the real underlying system, with every proposed change captured as a reviewable, governed change set — never a silent mutation.
+The core thesis: users should not have to work directly against raw implementation artefacts by default. They should work with AI-assisted semantic surfaces that remain traceable to the real underlying system, with every proposed change captured as a reviewable, governed change set — never a silent mutation.
 
 ## Core concepts
 
@@ -25,6 +25,16 @@ Semantic Prism is built around three bidirectional surface types, composed into 
 A **Semantic Workspace Manager** composes these surfaces into synchronized, task-oriented workspaces (e.g. *Impact Analysis Workspace*, *Business Rule Workspace*, *Change Review Workspace*). A **Context Bus** keeps selection and focus aligned across every projection of the same semantic object. A **Command Router** converts human and AI interaction into semantic commands, and every proposed modification passes through a **Change-Set and Validation** layer before anything is considered applied.
 
 Guiding principles: semantic meaning first, implementation always traceable; every surface is a potential interaction surface, not just a viewer; the AI participates through typed, registered surface descriptors — never arbitrary generated UI; and every change is reviewable before it is treated as real.
+
+## AI-native by design
+
+AI is not treated as a side panel or isolated assistant in Semantic Prism. It is incorporated across the full interaction model.
+
+AI helps analyse complex systems, explain semantic objects, reconstruct business rules, generate alternative projections, compose task-specific workspaces, create diagrams, prepare control panels, propose changes, generate validation checklists, summarize impact and support review.
+
+The user does not interact only with raw code or static diagrams. The user works with AI-assisted semantic surfaces: text, canvas and control views that can be generated, enriched, explained and updated through governed AI interaction.
+
+At the same time, AI does not silently mutate underlying systems. AI-created interpretations and changes remain traceable to source artefacts, evidence, semantic commands, change sets and validation results. The system is AI-native, but reviewable and governed.
 
 ## Primary users
 
