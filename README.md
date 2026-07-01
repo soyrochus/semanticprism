@@ -43,6 +43,8 @@ This repository currently contains the project specification and a local, runnab
 
 A client-side-only React + TypeScript + Vite application that demonstrates the interaction model end-to-end through one scripted narrative: investigating a customer credit-limit validation rule and proposing a VIP-customer exception, across a synchronized Canvas Surface (impact graph), Text Surface (DSL, original source, diff, validation, trace) and Control Surfaces (AI analysis, change proposal, change basket). No backend, authentication, database or real AI/validation engine is required.
 
+![Semantic Prism mock-up](images/mock-up.png)
+
 Run it locally:
 
 ```bash
@@ -65,6 +67,8 @@ Spec-driven change proposals (proposal, design, capability specs and tasks) trac
 ## Project status
 
 Version 0.1 — early-stage specification plus an illustrative mock-up. This is a scripted demonstration of the interaction model, not a functional platform: no backend, no real AI integration, no persistence. See the specifications in `specs/` for the full project vision and the explicit non-goals of the current mock-up.
+
+
 
 ---
 
