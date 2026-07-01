@@ -1,0 +1,151 @@
+.dock {
+  display: grid;
+  grid-template-rows: 42px minmax(0, 1fr);
+  height: 100%;
+  min-height: 0;
+}
+
+.dock-tabs {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+  padding: 6px 8px 0;
+  border-bottom: 1px solid var(--border);
+  background: var(--panel);
+}
+
+.dock-tabs button {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  height: 35px;
+  padding: 0 11px;
+  border: 1px solid transparent;
+  border-bottom: 0;
+  border-radius: 7px 7px 0 0;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.dock-tabs button.is-active {
+  border-color: var(--border);
+  background: var(--editor-area);
+  color: var(--editor-text);
+}
+
+.dock-content {
+  min-height: 0;
+  overflow: hidden;
+  background: var(--editor-area);
+}
+
+.code-surface {
+  display: grid;
+  grid-template-rows: 34px minmax(0, 1fr);
+  height: 100%;
+  color: var(--editor-text);
+}
+
+.code-heading {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 10px;
+  padding: 0 14px;
+  border-bottom: 1px solid rgba(255, 255, 255, 0.09);
+  color: color-mix(in srgb, var(--editor-text) 78%, transparent);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.code-heading strong {
+  color: var(--violet);
+  font-size: 11px;
+  text-transform: uppercase;
+}
+
+.code-surface pre {
+  min-height: 0;
+  margin: 0;
+  padding: 12px 14px 36px;
+  overflow: auto;
+  font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+  font-size: 12px;
+  line-height: 1.55;
+  white-space: pre-wrap;
+}
+
+.code-surface.has-proposed pre {
+  background: linear-gradient(
+    to bottom,
+    transparent 0 36%,
+    color-mix(in srgb, var(--violet) 18%, transparent) 36% 100%
+  );
+}
+
+.code-surface.has-patch pre {
+  background: linear-gradient(
+    to bottom,
+    transparent 0 28%,
+    color-mix(in srgb, var(--amber) 20%, transparent) 28% 48%,
+    transparent 48% 100%
+  );
+}
+
+.validation-surface {
+  height: 100%;
+  padding: 14px;
+  overflow: auto;
+  color: var(--editor-text);
+  background: var(--editor-area);
+}
+
+.check-list {
+  display: grid;
+  gap: 8px;
+  margin: 14px 0;
+  padding: 0;
+  list-style: none;
+}
+
+.check-list li {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  color: var(--editor-text);
+  font-size: 13px;
+}
+
+.check-list svg {
+  color: var(--green);
+}
+
+.progress-line {
+  position: relative;
+  height: 4px;
+  margin-top: 18px;
+  overflow: hidden;
+  border-radius: 999px;
+  background: rgba(255, 255, 255, 0.14);
+}
+
+.progress-line::after {
+  content: "";
+  position: absolute;
+  inset: 0 auto 0 0;
+  width: 34%;
+  border-radius: inherit;
+  background: var(--blue);
+  animation: validation-progress 900ms ease-in-out infinite alternate;
+}
+
+@keyframes validation-progress {
+  from {
+    transform: translateX(0);
+  }
+  to {
+    transform: translateX(190%);
+  }
+}

@@ -1,0 +1,274 @@
+.graph-panel {
+  position: relative;
+  display: flex;
+  flex-direction: column;
+  height: 100%;
+  min-height: 0;
+}
+
+.graph-toolbar {
+  position: absolute;
+  top: 10px;
+  left: 12px;
+  right: 12px;
+  z-index: 2;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  pointer-events: none;
+}
+
+.segmented-control,
+.graph-actions {
+  display: flex;
+  gap: 4px;
+  pointer-events: auto;
+}
+
+.segmented-control {
+  padding: 3px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 92%, transparent);
+  box-shadow: var(--shadow);
+}
+
+.segmented-control button {
+  min-width: 92px;
+  height: 30px;
+  border: 0;
+  border-radius: 6px;
+  background: transparent;
+  color: var(--text-secondary);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.segmented-control button.is-active {
+  color: white;
+  background: var(--blue);
+}
+
+.impact-graph {
+  width: 100%;
+  height: 100%;
+  display: block;
+  background:
+    linear-gradient(var(--canvas), var(--canvas)),
+    radial-gradient(circle at 1px 1px, color-mix(in srgb, var(--grey) 18%, transparent) 1px, transparent 0);
+  background-size: auto, 22px 22px;
+}
+
+.impact-graph marker path {
+  fill: var(--grey);
+}
+
+.graph-edge path {
+  fill: none;
+  stroke: color-mix(in srgb, var(--grey) 56%, transparent);
+  stroke-width: 1.5;
+}
+
+.graph-edge text {
+  paint-order: stroke;
+  stroke: var(--canvas);
+  stroke-width: 5px;
+  fill: var(--text-secondary);
+  font-size: 11px;
+  font-weight: 800;
+  text-anchor: middle;
+}
+
+.graph-edge.is-highlighted path {
+  stroke: var(--blue);
+  stroke-width: 2.4;
+}
+
+.graph-edge.is-preview path {
+  stroke: var(--violet);
+  stroke-width: 3;
+  stroke-dasharray: 7 4;
+}
+
+.graph-edge.is-dimmed {
+  opacity: 0.18;
+}
+
+.graph-node {
+  cursor: pointer;
+  transition: opacity 120ms ease;
+}
+
+.graph-node .node-card {
+  fill: var(--node-fill);
+  stroke: var(--border-strong);
+  stroke-width: 1.2;
+  filter: drop-shadow(0 3px 7px rgba(12, 22, 38, 0.1));
+}
+
+.graph-node .node-label {
+  fill: var(--text);
+  font-size: 12px;
+  font-weight: 800;
+}
+
+.graph-node .node-type-label,
+.graph-node .node-confidence,
+.graph-node .node-badge {
+  fill: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.node-accent,
+.node-marker,
+.legend-marker {
+  fill: var(--grey);
+}
+
+.node-type-screen .node-accent,
+.node-type-screen .node-marker {
+  fill: var(--blue);
+}
+
+.node-type-process .node-accent,
+.node-type-process .node-marker {
+  fill: #475569;
+}
+
+.node-type-business-rule .node-accent,
+.node-type-business-rule .node-marker {
+  fill: var(--amber);
+}
+
+.node-type-field .node-accent,
+.node-type-field .node-marker,
+.node-type-entity .node-accent,
+.node-type-entity .node-marker,
+.node-type-table .node-accent,
+.node-type-table .node-marker {
+  fill: var(--cyan);
+}
+
+.node-type-integration .node-accent,
+.node-type-integration .node-marker {
+  fill: #0f766e;
+}
+
+.node-type-role .node-accent,
+.node-type-role .node-marker {
+  fill: #ea580c;
+}
+
+.node-type-policy .node-accent,
+.node-type-policy .node-marker,
+.node-type-ai-inference .node-accent,
+.node-type-ai-inference .node-marker {
+  fill: var(--violet);
+}
+
+.node-type-source-artifact .node-accent,
+.node-type-source-artifact .node-marker {
+  fill: var(--grey);
+}
+
+.node-type-validation .node-accent,
+.node-type-validation .node-marker {
+  fill: var(--green);
+}
+
+.node-type-change-set .node-accent,
+.node-type-change-set .node-marker {
+  fill: var(--violet);
+}
+
+.graph-node.is-selected .node-card,
+.graph-node.is-highlighted .node-card {
+  stroke: var(--blue);
+  stroke-width: 2;
+}
+
+.graph-node.is-preview .node-card {
+  stroke: var(--violet);
+  stroke-width: 3;
+  stroke-dasharray: 6 3;
+}
+
+.graph-node.is-mode-emphasis:not(.is-highlighted) .node-card {
+  stroke: color-mix(in srgb, var(--green) 64%, var(--border));
+}
+
+.graph-node.is-dimmed {
+  opacity: 0.24;
+}
+
+.graph-legend {
+  position: absolute;
+  left: 12px;
+  right: 12px;
+  bottom: 10px;
+  z-index: 2;
+  display: flex;
+  flex-wrap: wrap;
+  gap: 5px 10px;
+  padding: 8px 10px;
+  border: 1px solid var(--border);
+  border-radius: 8px;
+  background: color-mix(in srgb, var(--panel) 91%, transparent);
+  box-shadow: var(--shadow);
+}
+
+.legend-item {
+  display: inline-flex;
+  align-items: center;
+  gap: 5px;
+  color: var(--text-secondary);
+  font-size: 10px;
+  font-weight: 700;
+}
+
+.legend-marker {
+  width: 9px;
+  height: 9px;
+  border-radius: 50%;
+}
+
+.legend-marker.node-type-screen {
+  background: var(--blue);
+}
+
+.legend-marker.node-type-process {
+  background: #475569;
+}
+
+.legend-marker.node-type-business-rule {
+  background: var(--amber);
+}
+
+.legend-marker.node-type-field,
+.legend-marker.node-type-entity,
+.legend-marker.node-type-table {
+  background: var(--cyan);
+}
+
+.legend-marker.node-type-integration {
+  background: #0f766e;
+}
+
+.legend-marker.node-type-role {
+  background: #ea580c;
+}
+
+.legend-marker.node-type-policy,
+.legend-marker.node-type-ai-inference,
+.legend-marker.node-type-change-set {
+  background: var(--violet);
+}
+
+.legend-marker.node-type-source-artifact {
+  background: var(--grey);
+}
+
+.legend-marker.node-type-validation {
+  background: var(--green);
+}
