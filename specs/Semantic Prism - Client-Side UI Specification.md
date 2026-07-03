@@ -235,6 +235,17 @@ The user should always be able to distinguish:
 * validated change;
 * rejected change.
 
+### 5.7 Change-set immutability
+
+The UI must distinguish two things that are easy to conflate:
+
+* the **change basket** — a mutable, in-progress collection of semantic commands, not yet committed;
+* the **change set** — an immutable, committed artefact produced from a change basket.
+
+Once a change set is committed, the UI must not offer any action that edits it in place. Addressing feedback on a committed change set (for example a `changes-requested` decision) produces a new change set that supersedes it. Undoing an already-applied change set is a distinct, explicit action — rollback — which also produces a new change set (one that reverts the original), rather than mutating or erasing history.
+
+How a change set maps to a backend mechanism (a git commit, an event-sourced record, or something else) is a backend concern and out of scope here. The UI only needs to guarantee the immutability contract above.
+
 ## 6. High-level UI architecture
 
 The client-side UI is organized around six conceptual layers.
@@ -331,6 +342,7 @@ The Context Bus synchronizes:
 * active artefact;
 * cursor/line selection;
 * graph node selection;
+* active change basket, including its undo/redo position;
 * active change set;
 * active validation result;
 * AI references;
@@ -355,9 +367,13 @@ Examples:
 * propose change;
 * edit DSL block;
 * add validation condition;
+* undo edit;
+* redo edit;
 * request validation;
+* commit change set;
 * approve change;
 * reject change;
+* roll back change set;
 * create review comment;
 * show original artefact;
 * generate test proposal.
@@ -379,7 +395,10 @@ It must show:
 * AI confidence/evidence;
 * reviewer comments;
 * approval state;
-* final decision.
+* final decision;
+* commit state — mutable change basket versus immutable, committed change set;
+* supersession relationship, where applicable (this change set replaces another);
+* rollback relationship, where applicable (this change set reverts another).
 
 ## 7. The three primitive surface types
 
@@ -1270,9 +1289,11 @@ The UI must show:
 
 ### 15.4 Change basket
 
-There should be a visible “change basket” or “current change set” panel.
+There should be a visible “change basket” panel, distinct from a change set.
 
-It collects semantic commands before they become a formal change set.
+The change basket is the mutable, in-progress collection of semantic commands before they are committed. The change set is what the basket becomes at the moment of commit — see [15.6](#156-change-set-immutability-and-rollback).
+
+While a basket is open, edits within it must be undoable and redoable as semantic commands, not merely as local per-surface text edits. This undo/redo history spans every surface that contributed a command to the basket (text, canvas, control), and it must survive navigating away from and back to the workspace for the lifetime of the session. Whether it survives a reload, reconnect or logout is an open question, not a guarantee of this version — see [§28](#28-open-questions-for-the-next-specification-phase).
 
 Example:
 
@@ -1286,8 +1307,10 @@ Actions:
   Review
   Generate technical diff
   Validate
+  Undo
+  Redo
   Discard
-  Save as change set
+  Commit as change set
 ```
 
 ### 15.5 Change-set review
@@ -1333,7 +1356,18 @@ order-credit-test.json
 
 The UI must allow reviewers to move between these levels easily.
 
-### 15.6 Validation UI
+### 15.6 Change-set immutability and rollback
+
+Once a change basket is committed, it becomes a change set and is immutable. The UI must not offer edit, undo or redo on a committed change set.
+
+There are two distinct ways a committed change set is superseded, and the UI must not blur them:
+
+* **Revision.** A change set that received a `changes-requested` decision is not edited in place. The author reopens a change basket (seeded from the rejected change set's commands), edits it, and commits a new change set that supersedes the original. The original remains visible in history, marked `superseded`.
+* **Rollback.** A change set that has already been applied (`merged/applied`) can be reverted. Rollback is an explicit, reviewable action, not a silent undo: it produces a new change set whose semantic intent is “revert change set X”, goes through the same validation and approval path as any other change set, and is linked to the original via a `reverts` / `reverted-by` relationship (see [§16](#16-traceability-and-provenance)).
+
+Neither path deletes or rewrites a prior change set. History only grows forward.
+
+### 15.7 Validation UI
 
 Validation should be presented as a first-class surface.
 
@@ -1428,6 +1462,17 @@ Semantic rule
 
 This is essential for expert trust.
 
+### 16.4 Change-set lineage
+
+Change sets are immutable (see [15.6](#156-change-set-immutability-and-rollback)), so relationships between them are themselves part of provenance:
+
+```text
+supersedes / superseded-by
+reverts / reverted-by
+```
+
+For this version, it is sufficient to show these as links from within a change set's own review panel (for example, “this change set reverts change set #142”). A dedicated change-set lineage/history graph visualization is not required yet — see [§27](#27-non-goals-for-the-first-ui-version).
+
 ## 17. Collaboration and review
 
 Semantic Prism should support collaborative analysis and change review.
@@ -1456,7 +1501,10 @@ validated
 rejected
 superseded
 merged/applied
+rolled-back
 ```
+
+`changes-requested` does not put a committed change set back into an editable state; it results in a new change set that supersedes it (see [15.6](#156-change-set-immutability-and-rollback)). `rolled-back` marks a `merged/applied` change set that a later change set has reverted; the original stays in history, it is not removed or reopened.
 
 The exact persistence model is out of scope, but the UI must be designed for this workflow.
 
@@ -1947,7 +1995,10 @@ The first UI version should not attempt to implement:
 * all possible diagram types;
 * every legacy language;
 * direct mutation of target systems;
-* complete mobile support.
+* complete mobile support;
+* undo/redo history that survives reload, reconnect or logout (session-scoped undo/redo is sufficient for now);
+* a dedicated change-set lineage/history graph visualization (link-based lineage in the review panel is sufficient for now);
+* rollback of already-applied change sets against real target systems (the UI flow may exist, but it does not need a working backend behind it).
 
 It should prove the core interaction model:
 
@@ -1979,6 +2030,9 @@ The following decisions are intentionally left open:
 12. How much of the workspace layout is user-specific versus task-specific?
 13. What belongs in the client and what must remain server-side?
 14. How is collaboration introduced later without redesigning the workspace model?
+15. Should the change-basket undo/redo buffer persist across reload/reconnect, and if so, where (server-side operation log, local storage, something else)?
+16. What backend mechanism does a committed change set map to (a git commit, an event-sourced record, or another representation), and does that choice constrain how rollback and supersession are implemented?
+17. At what point does change-set lineage need a dedicated graph visualization rather than in-panel links?
 
 ## 29. Concise product definition
 
