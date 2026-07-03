@@ -2014,6 +2014,8 @@ semantic object
 
 ## 28. Open questions for the next specification phase
 
+Questions 1–14 below are answered in [Semantic Prism - State and Backend Architecture Specification.md](Semantic%20Prism%20-%20State%20and%20Backend%20Architecture%20Specification.md) §6. Questions 15–17 are not yet answered by that document, or by any other spec in this directory, as of this writing — treat them as still open.
+
 The following decisions are intentionally left open:
 
 1. What is the canonical client-side state architecture?

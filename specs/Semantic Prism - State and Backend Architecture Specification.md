@@ -2,7 +2,7 @@
 
 Internal working name: Semantic Prism
 Scope: client-side state architecture and backend/client split
-Version: 0.2
+Version: 0.3
 
 ## 1. Relationship to parent specification
 
@@ -240,97 +240,8 @@ This document does not specify:
 These remain open for an implementation-level architecture document.
 
 
-## 8. Accepted implementation language decision
+## 8. Backend implementation language
 
-The Semantic Prism core backend will be implemented as a **TypeScript / Node.js modular monolith**.
+Settled in [Semantic Prism - ADR 0001 - Backend Implementation Language.md](Semantic%20Prism%20-%20ADR%200001%20-%20Backend%20Implementation%20Language.md): the Semantic Prism core is a TypeScript/Node.js modular monolith; Rust is used selectively for independently deployable adapter services where parsing, performance, memory safety or concurrency materially justify it. That ADR is the single source of truth for the rationale, the core/adapter responsibility split, the architectural guardrails and the consequences of this choice — they are not repeated here.
 
-Rust will be used selectively for independently deployable adapter services and technical engines where performance, memory safety, parser correctness, concurrency or substrate-specific isolation materially matter.
-
-```text
-Semantic Core:        TypeScript / Node.js modular monolith
-Adapter Fabric:       independently deployable services
-Heavy adapters:       Rust preferred where technically justified
-Light adapters:       TypeScript acceptable where orchestration dominates
-Shared contracts:     OpenAPI / JSON Schema / generated DTOs
-```
-
-### 8.1 Rationale
-
-The core backend is primarily an application-orchestration and semantic-governance layer. It owns project state, semantic model APIs, command handling, change baskets, immutable change sets, provenance, validation orchestration, AI orchestration, permissions, workspace persistence and the adapter registry.
-
-Those responsibilities are schema-heavy and coordination-heavy. They will evolve rapidly while the product model is still being stabilized. TypeScript aligns with the React client, JSON-shaped semantic contracts, AI/tool orchestration, typed command envelopes, surface descriptors and schema-generated control surfaces.
-
-Rust is better suited to substrate-heavy execution: parsing, extraction, validation, static analysis, graph processing, source scanning, binary/runtime integration and high-concurrency adapter workloads. Those are natural candidates for separate adapter services or technical engines.
-
-The language split is therefore:
-
-```text
-TypeScript owns semantic product logic.
-Rust owns substrate-heavy technical execution when justified.
-```
-
-### 8.2 Main semantic monolith responsibilities
-
-The TypeScript / Node.js core owns:
-
-```text
-Project Registry
-User / Role / Permission Model
-Semantic Object Store API
-Graph Query API
-Provenance Store API
-Command Router
-Change Basket Service
-Immutable Change Set Service
-Validation Orchestrator
-AI Orchestration / Evidence Assembly
-Workspace / Layout Persistence
-Adapter Registry
-Project Adapter Bindings
-Event / Job Status API
-```
-
-The core is authoritative for semantic state. Adapters are never authoritative for the Semantic Prism model.
-
-### 8.3 Adapter service responsibilities
-
-Adapter services are independently deployable capability providers. They connect Semantic Prism to concrete technical substrates.
-
-Typical adapter capabilities:
-
-```text
-discoverArtefacts
-readArtefact
-extractSemanticObjects
-generateArtefactDiff
-runValidation
-applyChangeSet
-invokeRuntime
-introspectSchema
-```
-
-A project may bind to multiple adapter services at once. The adapter may know the substrate. The semantic core may know adapter capabilities. The UI may know only the semantic result.
-
-### 8.4 Required guardrails
-
-The core must not rely on TypeScript compile-time types alone. Runtime validation is mandatory at system boundaries.
-
-Architectural invariants:
-
-```text
-No semantic mutation without a command.
-No command accepted without permission validation.
-No change set mutated after commit.
-No adapter result accepted without schema validation.
-No AI action executed outside the command or surface-descriptor model.
-No UI component talks directly to a substrate adapter.
-No adapter-specific concept leaks into the canonical semantic model without explicit schema review.
-```
-
-Adapter calls that create, apply, invoke or otherwise affect target systems must be idempotent and auditable.
-
-### 8.5 Consequences
-
-The core should initially remain a modular monolith, not a distributed set of microservices. Strong consistency is required around commands, change baskets, immutable change sets, provenance and validation state.
-
-Adapters should be separately deployable from the beginning, or at least designed so they can be extracted cleanly. This gives scalability, failure isolation, substrate-specific deployment freedom and cleaner security boundaries.
+The one implication specific to this document's scope: the Zustand store, Command Router and query API described in §3 run inside that TypeScript core, not in a separate service. `dispatchCommand` (§3.5) is a call into the core's HTTP API; `objectCache` (§3.3) is populated by the core's Graph Query API. Neither ever talks to a substrate adapter directly — adapters are reached only through the core (ADR 0001, "the UI may know only the semantic result").

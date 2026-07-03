@@ -8,7 +8,10 @@
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF.svg?logo=vite&logoColor=white)](https://vitejs.dev/)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-brightgreen.svg)](#contributing--principles-of-participation)
 
+![SemanticPrism logo ](./images/semantic-prism-logo-small.png)
+
 > Semantic Prism is a personal research and prototype project for AI-native semantic engineering: an AI-native visual workbench that turns complex software systems into traceable text, canvas and control surfaces.
+
 
 Semantic Prism is not a code editor, not a low-code tool, and not an IDE clone. It explores a semantic-workbench approach to complex implementation substrates — legacy systems, generated code, 4GL platforms, agentic runtimes, configuration-heavy systems, greenfield application models — through user-appropriate views: business-readable descriptions, visual dependency maps, process and data diagrams, source-code and pseudo-code views, generated DSL representations, forms, dashboards, review panels and more.
 

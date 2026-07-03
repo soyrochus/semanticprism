@@ -1,4 +1,5 @@
 import { Maximize2, MonitorCog, Search } from "lucide-react";
+import logo from "../assets/semantic-prism-logo-small.png";
 import { Badge } from "./Badge";
 import { IconButton } from "./IconButton";
 import { ThemeToggle } from "./ThemeToggle";
@@ -12,11 +13,7 @@ export function TopBar({ presentationMode, onTogglePresentation }: TopBarProps) 
   return (
     <div className="topbar-content">
       <div className="brand-lockup">
-        <div className="brand-mark">SP</div>
-        <div>
-          <strong>Semantic Prism</strong>
-          <span>Client-side mock</span>
-        </div>
+        <img src={logo} alt="Semantic Prism" className="brand-logo" />
       </div>
       <select aria-label="Project selector" defaultValue="Retail Order Platform">
         <option>Retail Order Platform</option>
