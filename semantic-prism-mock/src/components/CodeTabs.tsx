@@ -1,21 +1,22 @@
-import { CheckCircle2, CircleDot, FileCode2, GitPullRequestArrow, ListChecks, Route } from "lucide-react";
-import { availableChecks, passedChecklist, validationSummary, validationWarning } from "../data/mockValidation";
-import { generatedDiffText, getContextHeading, noDiffText, originalSourceText, semanticDslText, traceText } from "../data/mockText";
+import { CircleDot, FileCode2, GitPullRequestArrow, ListChecks, Route } from "lucide-react";
+import { useR1Store } from "../store/r1Store";
 import { CodeSurface } from "./CodeSurface";
 import { StatusChip } from "./StatusChip";
 import { useWorkspace, type BottomTab } from "./WorkspaceContext";
 
-const tabs: Array<{ id: BottomTab; label: string; icon: typeof FileCode2 }> = [
-  { id: "dsl", label: "Semantic DSL", icon: FileCode2 },
+const tabs: Array<{ id: BottomTab; label: string; icon: typeof FileCode2; unavailable?: boolean }> = [
+  { id: "dsl", label: "Semantic DSL", icon: FileCode2, unavailable: true },
   { id: "source", label: "Original Source", icon: CircleDot },
-  { id: "diff", label: "Generated Diff", icon: GitPullRequestArrow },
-  { id: "validation", label: "Validation", icon: ListChecks },
+  { id: "diff", label: "Generated Diff", icon: GitPullRequestArrow, unavailable: true },
+  { id: "validation", label: "Validation", icon: ListChecks, unavailable: true },
   { id: "trace", label: "Trace", icon: Route }
 ];
 
 export function CodeTabs() {
   const { state, setBottomTab } = useWorkspace();
-  const heading = getContextHeading(state.selectedObject);
+  const selectedDetail = useR1Store((store) => store.selectedDetail);
+  const sourceTrace = useR1Store((store) => store.sourceTrace);
+  const artefactContent = useR1Store((store) => store.artefactContent);
 
   return (
     <div className="dock">
@@ -36,89 +37,51 @@ export function CodeTabs() {
           );
         })}
       </div>
-      <div className="dock-content">{renderActiveTab(state.activeBottomTab, heading, state.changeActive, state.validationStatus)}</div>
+      <div className="dock-content">{renderActiveTab(state.activeBottomTab, selectedDetail, sourceTrace, artefactContent)}</div>
     </div>
   );
 }
 
 function renderActiveTab(
   activeTab: BottomTab,
-  heading: string,
-  changeActive: boolean,
-  validationStatus: "not-run" | "running" | "passed-with-warnings"
+  selectedDetail: ReturnType<typeof useR1Store.getState>["selectedDetail"],
+  sourceTrace: ReturnType<typeof useR1Store.getState>["sourceTrace"],
+  artefactContent: ReturnType<typeof useR1Store.getState>["artefactContent"]
 ) {
-  if (activeTab === "dsl") {
-    return (
-      <CodeSurface
-        heading={heading}
-        content={semanticDslText}
-        annotate={changeActive ? "proposed" : undefined}
-      />
-    );
-  }
+  const heading = selectedDetail?.object.label ?? "No object selected";
   if (activeTab === "source") {
     return (
       <CodeSurface
-        heading={heading}
-        content={originalSourceText}
-        annotate={changeActive ? "patch" : undefined}
+        heading={artefactContent?.artefact.path ?? heading}
+        content={artefactContent?.content ?? "Select an object with provenance and open its source trace."}
+        highlightRange={sourceTrace?.traces[0]?.sourceRange}
       />
     );
   }
-  if (activeTab === "diff") {
-    return (
-      <CodeSurface
-        heading={heading}
-        content={changeActive ? generatedDiffText : noDiffText}
-        annotate={changeActive ? "proposed" : undefined}
-      />
-    );
+  if (activeTab === "trace") {
+    const traceText =
+      sourceTrace?.traces
+        .map((trace) =>
+          [
+            `Object: ${sourceTrace.object.label}`,
+            `Artefact: ${trace.artefact?.path ?? "unknown"}`,
+            `Extraction: ${trace.extractionType}`,
+            `Confidence: ${Math.round(trace.confidence * 100)}%`,
+            `Evidence: ${trace.evidence.join(", ")}`
+          ].join("\n")
+        )
+        .join("\n\n") ?? "No source trace loaded.";
+    return <CodeSurface heading={heading} content={traceText} />;
   }
-  if (activeTab === "validation") {
-    return <ValidationSurface validationStatus={validationStatus} />;
-  }
-  return <CodeSurface heading={heading} content={traceText} />;
+  return <UnavailableSurface tab={activeTab} />;
 }
 
-function ValidationSurface({ validationStatus }: { validationStatus: "not-run" | "running" | "passed-with-warnings" }) {
-  if (validationStatus === "running") {
-    return (
-      <div className="validation-surface">
-        <StatusChip tone="active">Running...</StatusChip>
-        <div className="progress-line" />
-      </div>
-    );
-  }
-
-  if (validationStatus === "passed-with-warnings") {
-    return (
-      <div className="validation-surface">
-        <StatusChip tone="warning">Passed with warnings</StatusChip>
-        <ul className="check-list">
-          {passedChecklist.map((item) => (
-            <li key={item}>
-              <CheckCircle2 size={16} />
-              {item}
-            </li>
-          ))}
-        </ul>
-        <div className="warning-callout">{validationWarning}</div>
-        <p>{validationSummary}</p>
-      </div>
-    );
-  }
-
+function UnavailableSurface({ tab }: { tab: BottomTab }) {
+  const label = tab === "dsl" ? "Semantic DSL" : tab === "diff" ? "Generated Diff" : "Validation";
   return (
     <div className="validation-surface">
-      <StatusChip>Not run</StatusChip>
-      <ul className="check-list">
-        {availableChecks.map((check) => (
-          <li key={check}>
-            <CircleDot size={16} />
-            {check}
-          </li>
-        ))}
-      </ul>
+      <StatusChip tone="neutral">Unavailable in R1</StatusChip>
+      <p>{label} is planned for a later release and is disabled in the read-only R1 workbench.</p>
     </div>
   );
 }

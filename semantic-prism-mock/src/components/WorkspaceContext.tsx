@@ -1,4 +1,4 @@
-import { createContext, useContext } from "react";
+import { useR1Store } from "../store/r1Store";
 
 export type GraphMode = "impact" | "data" | "flow";
 export type BottomTab = "dsl" | "source" | "diff" | "validation" | "trace";
@@ -14,22 +14,22 @@ export interface WorkspaceState {
   validationStatus: ValidationStatus;
 }
 
-interface WorkspaceContextValue {
-  state: WorkspaceState;
-  setSelectedObject: (selectedObject: string) => void;
-  setGraphMode: (activeGraphMode: GraphMode) => void;
-  setBottomTab: (activeBottomTab: BottomTab) => void;
-  setTheme: (theme: Theme) => void;
-  setChangeActive: (changeActive: boolean) => void;
-  setValidationStatus: (validationStatus: ValidationStatus) => void;
-}
-
-export const WorkspaceContext = createContext<WorkspaceContextValue | null>(null);
-
 export function useWorkspace() {
-  const context = useContext(WorkspaceContext);
-  if (!context) {
-    throw new Error("useWorkspace must be used within WorkspaceContext.Provider");
-  }
-  return context;
+  const store = useR1Store();
+  return {
+    state: {
+      selectedObject: store.selectedObject,
+      activeGraphMode: store.activeGraphMode,
+      activeBottomTab: store.activeBottomTab,
+      theme: store.theme,
+      changeActive: store.changeActive,
+      validationStatus: store.validationStatus
+    },
+    setSelectedObject: (selectedObject: string) => store.dispatchCommand({ type: "SelectObject", objectId: selectedObject }),
+    setGraphMode: store.setGraphMode,
+    setBottomTab: store.setBottomTab,
+    setTheme: store.setTheme,
+    setChangeActive: () => store.dispatchCommand({ type: "ProposeBusinessRuleChange" }),
+    setValidationStatus: store.setValidationStatus
+  };
 }

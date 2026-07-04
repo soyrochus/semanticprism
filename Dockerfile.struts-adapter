@@ -1,0 +1,11 @@
+FROM docker.io/library/node:22-alpine
+WORKDIR /app
+COPY package.json tsconfig.base.json ./
+COPY packages/shared-contracts/package.json packages/shared-contracts/package.json
+COPY packages/struts-adapter/package.json packages/struts-adapter/package.json
+RUN npm install --workspace @semantic-prism/shared-contracts --workspace @semantic-prism/struts-adapter
+COPY packages/shared-contracts packages/shared-contracts
+COPY packages/struts-adapter packages/struts-adapter
+RUN npm run build --workspace @semantic-prism/shared-contracts && npm run build --workspace @semantic-prism/struts-adapter
+EXPOSE 4100
+CMD ["npm", "run", "start", "--workspace", "@semantic-prism/struts-adapter"]

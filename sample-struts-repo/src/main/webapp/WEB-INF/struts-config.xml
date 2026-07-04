@@ -1,0 +1,12 @@
+<struts-config>
+  <form-beans>
+    <form-bean name="orderForm" type="com.example.orders.OrderForm" />
+  </form-beans>
+  <action-mappings>
+    <action path="/submitOrder" type="com.example.orders.SubmitOrderAction" name="orderForm" scope="request" validate="true" input="/WEB-INF/jsp/order.jsp">
+      <forward name="success" path="/WEB-INF/jsp/confirmation.jsp" />
+      <forward name="failure" path="/WEB-INF/jsp/order.jsp" />
+    </action>
+  </action-mappings>
+  <message-resources parameter="messages" />
+</struts-config>

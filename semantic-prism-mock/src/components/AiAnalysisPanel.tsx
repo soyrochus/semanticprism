@@ -1,93 +1,45 @@
-import { FileSearch, GitPullRequestArrow, ListChecks, Sparkles } from "lucide-react";
+import { FileSearch, GitPullRequestArrow, ListChecks } from "lucide-react";
+import { useR1Store } from "../store/r1Store";
 import { Badge } from "./Badge";
 import { Panel } from "./Panel";
 import { StatusChip } from "./StatusChip";
-import { useWorkspace } from "./WorkspaceContext";
 
-interface AiAnalysisPanelProps {
-  onPreviewImpact: () => void;
-}
-
-export function AiAnalysisPanel({ onPreviewImpact }: AiAnalysisPanelProps) {
-  const { state, setBottomTab } = useWorkspace();
-  const analysis = getAnalysis(state.selectedObject);
+export function AiAnalysisPanel() {
+  const selectedDetail = useR1Store((store) => store.selectedDetail);
+  const dispatchCommand = useR1Store((store) => store.dispatchCommand);
+  const object = selectedDetail?.object;
 
   return (
     <Panel title="AI Analysis" eyebrow="Selected object">
       <div className="selected-object-row">
-        <strong>{state.selectedObject}</strong>
-        <StatusChip tone={analysis.tone}>{analysis.status}</StatusChip>
+        <strong>{object?.label ?? "No object selected"}</strong>
+        <StatusChip tone="active">{object?.kind ?? "R1"}</StatusChip>
       </div>
-      <p className="analysis-copy">{analysis.summary}</p>
+      <p className="analysis-copy">{object?.description ?? "Select a backend semantic object to inspect relationships and provenance."}</p>
       <div className="evidence-grid" aria-label="Evidence counts">
-        <span>3 source fragments</span>
-        <span>2 semantic entities</span>
-        <span>1 UI event handler</span>
-        <span>1 validation test</span>
+        <span>{selectedDetail?.provenance.length ?? 0} provenance records</span>
+        <span>{selectedDetail?.relationships.length ?? 0} relationships</span>
+        <span>{object?.provenanceIds.length ?? 0} trace refs</span>
+        <span>{object ? "canonical" : "empty"} kind</span>
       </div>
       <div className="provenance-row">
-        <Badge tone="violet">Deterministically derived + AI explained</Badge>
+        <Badge tone="violet">Backend canonical model</Badge>
       </div>
-      <p className="suggested-action">{analysis.action}</p>
+      <p className="suggested-action">R1 allows inspection, source trace, extraction, and layout changes only.</p>
       <div className="action-stack">
-        <button type="button" className="primary-action" onClick={onPreviewImpact}>
+        <button type="button" disabled>
           <GitPullRequestArrow size={16} />
-          Preview impact
+          Preview impact unavailable
         </button>
-        <button type="button" onClick={() => setBottomTab("trace")}>
+        <button type="button" onClick={() => object && void dispatchCommand({ type: "OpenSourceTrace", objectId: object.id })}>
           <FileSearch size={16} />
           Show source trace
         </button>
-        <button type="button" onClick={() => setBottomTab("validation")}>
+        <button type="button" disabled>
           <ListChecks size={16} />
-          Generate validation checklist
-        </button>
-        <button type="button" onClick={() => setBottomTab("dsl")}>
-          <Sparkles size={16} />
-          Explain in business language
+          Validation unavailable
         </button>
       </div>
     </Panel>
   );
-}
-
-function getAnalysis(selectedObject: string) {
-  if (selectedObject === "Customer.creditLimit") {
-    return {
-      status: "Field",
-      tone: "active" as const,
-      summary:
-        "Customer.creditLimit is the principal limit field read by CreditLimitValidation and persisted through the CUSTOMER table projection.",
-      action: "Review downstream validation and generated change-set references before changing this field mapping."
-    };
-  }
-
-  if (selectedObject === "CS-1042 VIP Credit Exception") {
-    return {
-      status: "Draft",
-      tone: "warning" as const,
-      summary:
-        "CS-1042 collects the proposed VIP exception rule, SalesManager approval dependency, source patch, and validation test update.",
-      action: "Run mock validation and review the role-mapping warning before presenting the change set."
-    };
-  }
-
-  if (selectedObject === "VIPExceptionPolicy") {
-    return {
-      status: "Proposed",
-      tone: "warning" as const,
-      summary:
-        "VIPExceptionPolicy narrows the existing blocking rule by requiring SalesManager approval when a VIP order exceeds credit limit.",
-      action: "Preview impact to verify the proposed policy touches approval role, validation test, and generated change set only."
-    };
-  }
-
-  return {
-    status: "Rule",
-    tone: "active" as const,
-    summary:
-      "CreditLimitValidation blocks orders whose total exceeds the customer credit limit. The semantic surface links the UI event, legacy source, involved fields, entities, and validation test.",
-    action:
-      "Suggested action: add a governed VIP exception requiring SalesManager approval, then generate a traceable source patch and validation checklist."
-  };
 }

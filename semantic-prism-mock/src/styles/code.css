@@ -77,6 +77,15 @@
   white-space: pre-wrap;
 }
 
+.source-line {
+  display: inline;
+}
+
+.source-line.is-highlighted {
+  background: color-mix(in srgb, var(--violet) 22%, transparent);
+  box-shadow: 0 0 0 2px color-mix(in srgb, var(--violet) 18%, transparent);
+}
+
 .code-surface.has-proposed pre {
   background: linear-gradient(
     to bottom,

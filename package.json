@@ -1,0 +1,17 @@
+{
+  "name": "semantic-prism",
+  "private": true,
+  "version": "0.1.0",
+  "type": "module",
+  "workspaces": [
+    "packages/*",
+    "semantic-prism-mock"
+  ],
+  "scripts": {
+    "build": "./node_modules/.bin/tsc -b packages/shared-contracts packages/core packages/struts-adapter && npm run build --workspace semantic-prism-mock",
+    "test": "./node_modules/.bin/tsc -b packages/shared-contracts packages/core packages/struts-adapter && node --test packages/core/dist/tests/*.test.js packages/struts-adapter/dist/tests/*.test.js",
+    "dev:core": "npm run dev --workspace @semantic-prism/core",
+    "dev:adapter": "npm run dev --workspace @semantic-prism/struts-adapter",
+    "dev:ui": "npm run dev --workspace semantic-prism-mock"
+  }
+}

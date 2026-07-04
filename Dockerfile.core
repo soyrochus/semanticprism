@@ -1,0 +1,11 @@
+FROM docker.io/library/node:22-alpine
+WORKDIR /app
+COPY package.json tsconfig.base.json ./
+COPY packages/shared-contracts/package.json packages/shared-contracts/package.json
+COPY packages/core/package.json packages/core/package.json
+RUN npm install --workspace @semantic-prism/shared-contracts --workspace @semantic-prism/core
+COPY packages/shared-contracts packages/shared-contracts
+COPY packages/core packages/core
+RUN npm run build --workspace @semantic-prism/shared-contracts && npm run build --workspace @semantic-prism/core
+EXPOSE 4000
+CMD ["npm", "run", "start", "--workspace", "@semantic-prism/core"]

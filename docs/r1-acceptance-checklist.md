@@ -1,0 +1,22 @@
+# R1 Acceptance Checklist
+
+- [ ] Seeded users can log in and receive JWT sessions.
+- [ ] Project list is scoped by authenticated membership.
+- [ ] Project detail and status require membership.
+- [ ] Java Struts adapter definition is seeded with only R1 read-only capabilities.
+- [ ] Project owner/admin can create adapter bindings.
+- [ ] Analyst/viewer binding creation is rejected.
+- [ ] Unsupported generation, validation, apply, runtime, and change-set commands are rejected.
+- [ ] Repository snapshots are tied to project, adapter binding, branch, and commit hash.
+- [ ] Artefact discovery persists path, type, language, hash, size, and metadata.
+- [ ] Artefact content is read-only and hash-preserving.
+- [ ] Extraction jobs use queued/running/completed/completed-with-warnings/failed/cancelled statuses.
+- [ ] Adapter output is schema-validated before persistence.
+- [ ] Semantic objects use canonical R1 kinds only.
+- [ ] Relationship kinds use the constrained R1 vocabulary only.
+- [ ] Non-synthetic semantic objects have provenance.
+- [ ] Object explorer loads backend canonical groups.
+- [ ] Impact graph loads backend subgraph data.
+- [ ] Source trace and source viewer route through Semantic Prism Core.
+- [ ] UI does not call the Struts adapter service directly.
+- [ ] No source modification operation exists or executes in R1.
