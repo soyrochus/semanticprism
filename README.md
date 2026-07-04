@@ -2,7 +2,7 @@
 
 [![License: MIT](https://img.shields.io/badge/License-MIT-yellow.svg)](https://choosealicense.com/licenses/mit/)
 ![Version](https://img.shields.io/badge/version-0.1-blue.svg)
-![Status](https://img.shields.io/badge/status-mock--up-orange.svg)
+![Status](https://img.shields.io/badge/status-R1%20local%20slice-blue.svg)
 [![React](https://img.shields.io/badge/React-18-61DAFB.svg?logo=react&logoColor=white)](https://react.dev/)
 [![TypeScript](https://img.shields.io/badge/TypeScript-5-3178C6.svg?logo=typescript&logoColor=white)](https://www.typescriptlang.org/)
 [![Vite](https://img.shields.io/badge/Vite-5-646CFF.svg?logo=vite&logoColor=white)](https://vitejs.dev/)
@@ -50,11 +50,51 @@ At the same time, AI does not silently mutate underlying systems. AI-created int
 
 ## This repository
 
-This repository currently contains the project specification and a local, runnable prototype mock-up implementing it.
+This repository contains the project specification, the original local UI prototype, and the current R1 local product slice: an authenticated, read-only semantic workbench over a sample Java Struts application.
 
-### `semantic-prism-mock/` — local HTML mock-up
+### R1 local semantic workbench
 
-A client-side-only React + TypeScript + Vite application that demonstrates the interaction model end-to-end through one scripted narrative: investigating a customer credit-limit validation rule and proposing a VIP-customer exception, across a synchronized Canvas Surface (impact graph), Text Surface (DSL, original source, diff, validation, trace) and Control Surfaces (AI analysis, change proposal, change basket). No backend, authentication, database or real AI/validation engine is required.
+R1 adds a backend-backed local topology:
+
+- React/Vite UI in `semantic-prism-mock/`
+- Semantic Prism Core API in `packages/core/`
+- shared contracts in `packages/shared-contracts/`
+- read-only Struts adapter in `packages/struts-adapter/`
+- PostgreSQL migrations and demo seeds under `packages/core/`
+- stable sample Struts repository in `sample-struts-repo/`
+
+Run the local stack with Podman:
+
+```bash
+podman compose up -d --build --force-recreate
+```
+
+Open:
+
+- UI: `http://localhost:5173`
+- Core health: `http://localhost:4000/health`
+- Adapter health: `http://localhost:4100/health`
+
+Seeded local login:
+
+```text
+owner@semantic-prism.local
+semantic-prism
+```
+
+Other seeded users are `admin@semantic-prism.local`, `analyst@semantic-prism.local`, and `viewer@semantic-prism.local`; all use the same local password.
+
+R1 is read-only. It supports login, project access, adapter binding, repository snapshots, Struts extraction, canonical semantic object queries, impact graph data, source trace, and read-only source viewing. It does not generate diffs, run validation, apply changes, create change sets, invoke runtimes, or modify source.
+
+Implementation details:
+
+- [`docs/r1-technical-implementation-guide.md`](./docs/r1-technical-implementation-guide.md)
+- [`docs/r1-acceptance-checklist.md`](./docs/r1-acceptance-checklist.md)
+- [`docs/r1-known-gaps.md`](./docs/r1-known-gaps.md)
+
+### `semantic-prism-mock/` — React workbench UI
+
+A React + TypeScript + Vite application that started as the client-side mock-up and now also serves as the R1 backend-driven workbench UI. The original visual composition remains: Canvas Surface, Text Surface, and Control Surfaces. In R1, the active data path uses Semantic Prism Core APIs instead of the old scripted narrative.
 
 ![Semantic Prism mock-up](images/mock-up.png)
 
@@ -66,7 +106,23 @@ npm install
 npm run dev
 ```
 
-Tech stack: React, TypeScript, Vite, D3.js (canvas rendering), Dagre (directed graph layout), CodeMirror (text surfaces).
+For the backend-driven R1 UI, run the full Podman stack from the repository root so the core and adapter services are available.
+
+Tech stack: React, TypeScript, Vite, Zustand, D3.js (canvas rendering), Dagre (directed graph layout), CodeMirror (text surfaces).
+
+### `packages/`
+
+- `packages/shared-contracts/` — canonical R1 DTOs, semantic object kinds, relationship vocabulary, adapter capabilities, JSON Schema, and OpenAPI definitions.
+- `packages/core/` — Semantic Prism Core API for auth, projects, adapter bindings, snapshots, extraction jobs, artefacts, semantic queries, provenance, source trace, and workspace layout.
+- `packages/struts-adapter/` — read-only Java Struts adapter for discovery, artefact reading, and canonical semantic extraction.
+
+Build and test:
+
+```bash
+npm install
+npm run build
+npm test
+```
 
 ### `specs/`
 
@@ -79,9 +135,9 @@ Spec-driven change proposals (proposal, design, capability specs and tasks) trac
 
 ## Project status
 
-Version 0.1 — early-stage specification plus an illustrative mock-up. This is a scripted demonstration of the interaction model, not a functional platform: no backend, no real AI integration, no persistence. See the specifications in `specs/` for the full project vision and the explicit non-goals of the current mock-up.
+Version 0.1 / R1 — early-stage specification plus a local, read-only functional slice. The R1 stack has real auth, project-scoped APIs, adapter binding, snapshot and artefact handling, Struts extraction, semantic object persistence in the local demo store, provenance, source trace, and a backend-driven UI.
 
-
+Important limits remain: no real AI integration, no governed change-set lifecycle, no source mutation, no production IAM, no production persistence wiring for HTTP routes, and no full Java parser. See [`docs/r1-known-gaps.md`](./docs/r1-known-gaps.md).
 
 ---
 
@@ -89,7 +145,14 @@ Version 0.1 — early-stage specification plus an illustrative mock-up. This is 
 
 Pull requests are welcome. For major changes, open an issue first to discuss the approach.
 
-There is no automated test suite yet. If you add one, please keep it passing before opening a pull request.
+There is an automated build and backend/adapter test suite:
+
+```bash
+npm run build
+npm test
+```
+
+Browser-level frontend tests are still a known R1 gap.
 
 Everyone is welcome to contribute: open issues, propose pull requests, share ideas, or improve documentation. Participation is open to all, regardless of background or viewpoint.
 
