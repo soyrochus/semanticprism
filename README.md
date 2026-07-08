@@ -63,10 +63,18 @@ R1 adds a backend-backed local topology:
 - PostgreSQL migrations and demo seeds under `packages/core/`
 - stable sample Struts repository in `sample-struts-repo/`
 
-Run the local stack with Podman:
+#### Option A: run the full stack with Podman or Docker Compose
+
+Use this path when you want the database, core API, Struts adapter and UI started together. Podman is the preferred local container runtime for this repository, and it consumes the Docker-compatible Compose file.
 
 ```bash
 podman compose up -d --build --force-recreate
+```
+
+If you use Docker instead of Podman, the equivalent command is:
+
+```bash
+docker compose up -d --build --force-recreate
 ```
 
 Open:
@@ -84,7 +92,79 @@ semantic-prism
 
 Other seeded users are `admin@semantic-prism.local`, `analyst@semantic-prism.local`, and `viewer@semantic-prism.local`; all use the same local password.
 
+#### Option B: run the services locally with a local PostgreSQL database
+
+Use this path when you want the Node services and Vite UI to run directly on your machine without containers. You still need PostgreSQL running locally.
+
+Install dependencies and build the packages first:
+
+```bash
+npm install
+npm run build
+```
+
+Create the local database and user if they do not already exist:
+
+```bash
+psql -h 127.0.0.1 -U postgres -d postgres -c "create user semantic_prism with password 'semantic_prism';"
+psql -h 127.0.0.1 -U postgres -d postgres -c "create database semantic_prism owner semantic_prism;"
+```
+
+Apply migrations and seed the R1 demo data:
+
+```bash
+DATABASE_URL=postgres://semantic_prism:semantic_prism@localhost:5432/semantic_prism \
+  npm run migrate --workspace @semantic-prism/core
+
+psql postgresql://semantic_prism:semantic_prism@localhost:5432/semantic_prism \
+  -f packages/core/seeds/r1_demo.sql
+```
+
+Start the three services in separate terminals:
+
+```bash
+SAMPLE_REPOSITORY_PATH="$PWD/sample-struts-repo" \
+  npm run dev:adapter
+```
+
+```bash
+DATABASE_URL=postgres://semantic_prism:semantic_prism@localhost:5432/semantic_prism \
+STRUTS_ADAPTER_URL=http://localhost:4100 \
+SAMPLE_REPOSITORY_PATH="$PWD/sample-struts-repo" \
+  npm run dev:core
+```
+
+```bash
+VITE_CORE_API_URL=http://localhost:4000 \
+  npm run dev:ui
+```
+
+Open:
+
+- UI: `http://localhost:5173`
+- Core health: `http://localhost:4000/health`
+- Adapter health: `http://localhost:4100/health`
+
+If a default port is already in use, override it with `STRUTS_ADAPTER_PORT`, `CORE_PORT`, or a direct Vite workspace command such as:
+
+```bash
+VITE_CORE_API_URL=http://localhost:4010 \
+  npm --workspace semantic-prism-mock run dev -- --host localhost --port 5176
+```
+
 R1 is read-only. It supports login, project access, adapter binding, repository snapshots, Struts extraction, canonical semantic object queries, impact graph data, source trace, and read-only source viewing. It does not generate diffs, run validation, apply changes, create change sets, invoke runtimes, or modify source.
+
+Root npm scripts:
+
+```bash
+npm run build       # build shared contracts, core, adapter, and UI
+npm test            # build backend packages and run core/adapter tests
+npm run dev:core    # run the built core service in watch mode
+npm run dev:adapter # run the built Struts adapter in watch mode
+npm run dev:ui      # run the Vite UI workspace
+```
+
+There is no root-level `npm run dev`; use `npm run dev:ui` for the UI, or the Podman Compose stack for the full R1 local environment.
 
 Implementation details:
 
@@ -101,12 +181,18 @@ A React + TypeScript + Vite application that started as the client-side mock-up 
 Run it locally:
 
 ```bash
-cd semantic-prism-mock
 npm install
-npm run dev
+npm run dev:ui
 ```
 
 For the backend-driven R1 UI, run the full Podman stack from the repository root so the core and adapter services are available.
+
+If you are working inside `semantic-prism-mock/` directly, the workspace still supports its local Vite script:
+
+```bash
+cd semantic-prism-mock
+npm run dev
+```
 
 Tech stack: React, TypeScript, Vite, Zustand, D3.js (canvas rendering), Dagre (directed graph layout), CodeMirror (text surfaces).
 

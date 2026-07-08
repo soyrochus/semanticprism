@@ -7,6 +7,11 @@ export interface Queryable {
 
 export async function createPostgresConnection(databaseUrl: string): Promise<Queryable> {
   const require = createRequire(import.meta.url);
-  const pg = require("pg") as { Pool: new (config: { connectionString: string }) => Queryable };
-  return new pg.Pool({ connectionString: databaseUrl });
+  const pg = require("pg") as { Pool: new (config: { connectionString: string }) => { query: Queryable["query"]; end: () => Promise<void> } };
+  const pool = new pg.Pool({ connectionString: databaseUrl });
+
+  return {
+    query: (sql, values) => pool.query(sql, values),
+    close: () => pool.end()
+  };
 }
